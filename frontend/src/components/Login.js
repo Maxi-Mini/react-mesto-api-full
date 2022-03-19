@@ -17,7 +17,7 @@ export const Login=({ handleLogin }) =>{
   function handleSubmit(evt) {
     evt.preventDefault();
     const { email, password } = data;
-    handleLogin(data);
+    handleLogin(email, password);
   }
 
   return (

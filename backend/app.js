@@ -1,8 +1,9 @@
 require('dotenv').config();
 const express = require('express');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const cors = require('cors');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
-const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { requestLogger, errorLogger } = require('./middlewares/Logger');
 const usersRouter = require('./routes/users');
@@ -15,9 +16,10 @@ const NotFoundError = require('./errors/NotFoundError');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+app.use(cors());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 mongoose
   .connect('mongodb://localhost:27017/mestodb', {

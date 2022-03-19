@@ -1,4 +1,4 @@
-const BASE_URL = "https://auth.nomoreparties.co";
+const BASE_URL = "https://maxi.backend.nomoredomains.work";
 
 const response = (res) =>
   res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
