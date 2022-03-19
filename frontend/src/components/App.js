@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import "../index.css";
 import Header from "./Header";
 import Main from "./Main";
@@ -7,7 +7,6 @@ import Footer from "./Footer";
 import ImagePopup from "./ImagePopup";
 import { Login } from "./Login";
 import { Register } from "./Register";
-import { ProtectedRoute } from "./ProtectedRoute";
 import { api } from "../utils/Api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
@@ -17,22 +16,90 @@ import * as auth from "../utils/auth";
 import InfoToolTip from "./InfoTooltip";
 
 function App() {
-  // card
-
   const [cards, setCards] = useState([]);
+  const [currentUser, setCurrentUser] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState({
+    email: "",
+  });
+  const [isDataSet, setIsDataSet] = useState(false);
+  const [token, setToken] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .getAllInfo()
+    loggedIn ? navigate("/") : navigate("/sign-in");
+  }, [loggedIn, navigate]);
+
+  const handleLogin = ({ email, password }) => {
+    auth
+      .authorize(email, password)
       .then((res) => {
-        const [cards, userInfo] = res;
-        setCards(cards);
-        setCurrentUser(userInfo);
+        if (res.token) {
+          localStorage.setItem("token", res.token);
+          setUserData({ email: email });
+          setLoggedIn(true);
+        }
       })
       .catch((err) => console.log(err));
+  };
+
+  const handleRegister = ({ email, password }) => {
+    auth
+      .register(email, password)
+      .then((res) => {
+        setIsDataSet(true);
+        setTooltipStatus("success");
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsDataSet(false);
+        setTooltipStatus("");
+        setIsInfoToolTipOpen(true);
+      })
+      .finally(() => {
+        setIsDataSet(false);
+        setIsInfoToolTipOpen(true);
+      });
+  };
+
+  useEffect(() => {
+    tokenCheck();
   }, []);
 
-  // like
+  const tokenCheck = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setToken(token);
+      auth
+        .getContent(token)
+        .then((res) => {
+          if (res) {
+            setCurrentUser(res.data);
+            setUserData(res.data.email);
+            setLoggedIn(true);
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUserData({ email: "" });
+    setLoggedIn(false);
+  };
+
+  useEffect(() => {
+    if (loggedIn) {
+      api
+        .getAllInfo(token)
+        .then((data) => {
+          setCards(data.data.reverse());
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [loggedIn, token]);
 
   const handleCardLike = (card) => {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
@@ -46,8 +113,6 @@ function App() {
       .catch((err) => console.log(err));
   };
 
-  // delete
-
   const handleCardDelete = (card) => {
     api
       .deleteCard(card._id)
@@ -56,8 +121,6 @@ function App() {
       })
       .catch((err) => console.log(err));
   };
-
-  // popup
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -82,134 +145,39 @@ function App() {
     setIsInfoToolTipOpen(false);
   };
 
-  // selected
-
   const [selectedCard, setSelectedCard] = useState({ title: "", link: "" });
   const handleCardClick = (card) => {
     setSelectedCard(card);
   };
 
-  // editprofile
-
-  const handleUpdateUser = (data) => {
+  const handleUpdateUser = (user) => {
     api
-      .setUserInfo(data)
-      .then((res) => {
-        setCurrentUser(res);
+      .setUserInfo(user, token)
+      .then((data) => {
+        setCurrentUser(data.data);
         closeAllPopups();
       })
       .catch((err) => console.log(err));
   };
 
-  // editavatar
-
-  const handleUpdateAvatar = (data) => {
+  const handleUpdateAvatar = (avatar) => {
     api
-      .setUserAvatar(data)
-      .then((res) => {
-        setCurrentUser(res);
+      .setUserAvatar(avatar, token)
+      .then((data) => {
+        setCurrentUser(data.data);
         closeAllPopups();
       })
       .catch((err) => console.log(err));
   };
 
-  //newplace
-
-  const handleAddPlaceSubmit = (data) => {
+  const handleAddPlaceSubmit = (card) => {
     api
-      .postCard(data)
+      .postCard(card, token)
       .then((res) => {
         setCards([res, ...cards]);
         closeAllPopups();
       })
       .catch((err) => console.log(err));
-  };
-
-  // userinfj
-
-  const [currentUser, setCurrentUser] = useState({
-    name: "",
-    about: "",
-    id_: "",
-  });
-
-  // token
-
-  useEffect(() => {
-    tokenCheck();
-  }, []);
-
-  const tokenCheck = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      auth
-        .getContent(token)
-        .then((res) => {
-          if (res) {
-            setUserData({ email: res.data.email });
-            setLoggedIn(true);
-          }
-        })
-        .catch((err) => console.log(err));
-    }
-  };
-
-  // sign
-
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [isDataSet, setIsDataSet] = useState(false);
-  const [userData, setUserData] = useState({
-    email: "",
-  });
-
-  const history = useHistory();
-
-  useEffect(() => {
-    if (loggedIn) {
-      history.push("/");
-    }
-  }, [history, loggedIn]);
-
-  const handleLogin = ({ email, password }) => {
-    auth
-      .authorize(email, password)
-      .then((res) => {
-        if (res.token) {
-          localStorage.setItem("token", res.token);
-          setUserData({ email: email });
-          setLoggedIn(true);
-          history.push("/");
-        }
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const handleRegister = ({ email, password }) => {
-    auth
-      .register(email, password)
-      .then((res) => {
-        if (res.data._id) {
-          setIsDataSet(true);
-          history.push("/sign-in");
-          setTooltipStatus("success");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsDataSet(false);
-        setTooltipStatus("");
-        setIsInfoToolTipOpen(true);
-      })
-      .finally(() => {
-        setIsDataSet(false);
-        setIsInfoToolTipOpen(true);
-      });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUserData({ email: "" });
-    setLoggedIn(false);
   };
 
   return (
@@ -221,29 +189,36 @@ function App() {
           email={userData.email}
         />
 
-        <Switch>
-          <ProtectedRoute
-            exact
+        <Routes>
+          <Route
             path="/"
-            loggedIn={loggedIn}
-            handleEditProfileClick={onEditProfile}
-            handleAddPlaceClick={onAddPlace}
-            handleEditAvatarClick={onEditAvatar}
-            handleCardClick={handleCardClick}
-            cards={cards}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-            component={Main}
+            element={
+              <>
+                <Main
+                  loggedIn={loggedIn}
+                  handleEditProfileClick={onEditProfile}
+                  handleAddPlaceClick={onAddPlace}
+                  handleEditAvatarClick={onEditAvatar}
+                  handleCardClick={handleCardClick}
+                  cards={cards}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                />
+              </>
+            }
           />
 
-          <Route path="/sign-up">
-            <Register handleRegister={handleRegister} isDataSet={isDataSet} />
-          </Route>
-
-          <Route path="/sign-in">
-            <Login handleLogin={handleLogin} />
-          </Route>
-        </Switch>
+          <Route
+            path="/sign-up"
+            element={
+              <Register handleRegister={handleRegister} isDataSet={isDataSet} />
+            }
+          />
+          <Route
+            path="/sign-in"
+            element={<Login handleLogin={handleLogin} />}
+          />
+        </Routes>
 
         <Footer />
 

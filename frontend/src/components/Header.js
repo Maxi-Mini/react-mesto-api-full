@@ -1,11 +1,11 @@
 import headerLogo from "../images/header_logo.svg";
-import { Route, Switch, Link } from "react-router-dom";
+import { Route, Link, Routes } from "react-router-dom";
 
 function Header({ handleLogout, email, isMenuOpen }) {
   return (
     <header className="header">
       <img className="header__logo" src={headerLogo} alt="логотип место" />
-      <Switch>
+      <Routes>
         <Route exact path="/">
           <div className="header__info">
             <span className="header__email">{email}</span>
@@ -39,7 +39,7 @@ function Header({ handleLogout, email, isMenuOpen }) {
             Войти
           </Link>
         </Route>
-      </Switch>
+      </Routes>
     </header>
   );
 }
