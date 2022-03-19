@@ -52,4 +52,4 @@ const AddPlacePopup = ({ isOpen, onClose, onAddPlace }) => {
 
 }
 
-export default AddPlacePopup
+export default AddPlacePopup;
