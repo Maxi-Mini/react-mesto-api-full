@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Switch, Redirect, useHistory } from "react-router-dom";
 import "../index.css";
 import Header from "./Header";
 import Main from "./Main";
@@ -7,6 +7,7 @@ import Footer from "./Footer";
 import ImagePopup from "./ImagePopup";
 import { Login } from "./Login";
 import { Register } from "./Register";
+import { ProtectedRoute } from "./ProtectedRoute";
 import { api } from "../utils/Api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
@@ -25,11 +26,11 @@ function App() {
   const [isDataSet, setIsDataSet] = useState(false);
   const [token, setToken] = useState("");
 
-  const navigate = useNavigate();
+  const history = useHistory();
 
   useEffect(() => {
-    loggedIn ? navigate("/") : navigate("/sign-in");
-  }, [loggedIn, navigate]);
+    loggedIn ? history.push("/") : history.push("/sign-in");
+  }, [loggedIn, history]);
 
   const handleLogin = ({ email, password }) => {
     auth
@@ -189,36 +190,33 @@ function App() {
           email={userData.email}
         />
 
-        <Routes>
-          <Route
+        <Switch>
+          <ProtectedRoute
+            exact
             path="/"
-            element={
-              <>
-                <Main
-                  loggedIn={loggedIn}
-                  handleEditProfileClick={onEditProfile}
-                  handleAddPlaceClick={onAddPlace}
-                  handleEditAvatarClick={onEditAvatar}
-                  handleCardClick={handleCardClick}
-                  cards={cards}
-                  onCardLike={handleCardLike}
-                  onCardDelete={handleCardDelete}
-                />
-              </>
-            }
+            loggedIn={loggedIn}
+            handleEditProfileClick={onEditProfile}
+            handleAddPlaceClick={onAddPlace}
+            handleEditAvatarClick={onEditAvatar}
+            handleCardClick={handleCardClick}
+            cards={cards}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            component={Main}
           />
 
-          <Route
-            path="/sign-up"
-            element={
-              <Register handleRegister={handleRegister} isDataSet={isDataSet} />
-            }
-          />
-          <Route
-            path="/sign-in"
-            element={<Login handleLogin={handleLogin} />}
-          />
-        </Routes>
+          <Route path="/sign-up">
+            <Register handleRegister={handleRegister} isDataSet={isDataSet} />
+          </Route>
+
+          <Route path="/sign-in">
+            <Login handleLogin={handleLogin} />
+          </Route>
+
+          <Route>
+            {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+          </Route>
+        </Switch>
 
         <Footer />
 
