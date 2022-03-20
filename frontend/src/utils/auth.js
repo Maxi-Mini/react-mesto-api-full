@@ -1,5 +1,5 @@
-// export const BASE_URL = "https://maxi.backend.nomoredomains.work";
-export const BASE_URL = '//localhost:3001';
+export const BASE_URL = "https://maxi.backend.nomoredomains.work";
+// export const BASE_URL = '//localhost:3001';
 
 export const response = (res) =>
   res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
