@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
-export const Register = ({ handleRegister, isDataSet }) => {
+export const Register = ({ handleRegister }) => {
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -21,11 +21,7 @@ export const Register = ({ handleRegister, isDataSet }) => {
     handleRegister({email, password});
   }
 
-  // useEffect(() => {
-  //   if (isDataSet) {
-  //     setData({ email: "", password: "" });
-  //   }
-  // }, [isDataSet]);
+
 
   return (
     <div className="auth">

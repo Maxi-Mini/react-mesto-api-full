@@ -16,6 +16,13 @@ const NotFoundError = require('./errors/NotFoundError');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+// const allowedCors = [
+//   'http://localhost:3001',
+// ];
+// app.use(cors({
+//   origin: allowedCors,
+// }));
+
 app.use(cors());
 
 app.use(bodyParser.json());

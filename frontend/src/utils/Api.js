@@ -125,8 +125,8 @@ class Api {
 
 // данные для отрисовки страницы
 
-    getAllInfo(token){
-        return Promise.all([this.getCards(token), this.getUserInfo(token)])
+    getAllInfo(){
+        return Promise.all([this.getCards(), this.getUserInfo()])
     }
 // проверяем наличие лайка
 
