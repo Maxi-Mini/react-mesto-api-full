@@ -20,9 +20,7 @@ function App() {
   const [cards, setCards] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userData, setUserData] = useState({
-    email: "",
-  });
+  const [userData, setUserData] = useState({});
   const [isDataSet, setIsDataSet] = useState(false);
   const [token, setToken] = useState("");
 
@@ -32,7 +30,7 @@ function App() {
     loggedIn ? history.push("/") : history.push("/sign-in");
   }, [loggedIn, history]);
 
-  const handleLogin = ( email, password ) => {
+  const handleLogin = (email, password) => {
     auth
       .authorize(email, password)
       .then((res) => {
@@ -40,16 +38,18 @@ function App() {
           localStorage.setItem("token", res.token);
           setUserData({ email: email });
           setLoggedIn(true);
+          history.push('/');
         }
       })
       .catch((err) => console.log(err));
   };
 
-  const handleRegister = ( email, password ) => {
+  const handleRegister = (email, password) => {
     auth
       .register(email, password)
-      .then((res) => {
+      .then(() => {
         setIsDataSet(true);
+        history.push('/sign-in');
         setTooltipStatus("success");
       })
       .catch((err) => {
@@ -77,7 +77,7 @@ function App() {
         .then((res) => {
           if (res) {
             setCurrentUser(res.data);
-            setUserData(res.data.email);
+            setUserData({ email: res.email });
             setLoggedIn(true);
           }
         })
@@ -89,6 +89,7 @@ function App() {
     localStorage.removeItem("token");
     setUserData({ email: "" });
     setLoggedIn(false);
+    history.push('/sign-in');
   };
 
   useEffect(() => {
@@ -106,9 +107,9 @@ function App() {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
     api
       .changeLikeCardStatus(card._id, isLiked)
-      .then((newCard) => {
+      .then((res) => {
         setCards((cards) =>
-          cards.map((c) => (c._id === card._id ? newCard : c))
+          cards.map((c) => (c._id === card._id ? res : c))
         );
       })
       .catch((err) => console.log(err));

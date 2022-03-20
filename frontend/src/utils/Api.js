@@ -11,8 +11,6 @@ class Api {
         return Promise.reject(`Ошибка ${res.status}`);
     }
 
-// загружаем карточки с сервера
-
     getCards(){
         return fetch(`${this._url}/cards`, {
         headers:{
@@ -23,8 +21,6 @@ class Api {
         .then(this._getResponse)
     }
 
-// загружаем данные о пользователе с сервера
-
     getUserInfo(){
         return fetch(`${this._url}/users/me`, {
             headers:{
@@ -34,8 +30,6 @@ class Api {
         })
         .then(this._getResponse)
     }
-
-// отправка данных профиля на сервер
 
     setUserInfo(data){
         return fetch(`${this._url}/users/me`, {
@@ -52,8 +46,6 @@ class Api {
         .then(this._getResponse)
     }
 
-// обновление аватара
-
     setUserAvatar(data){
         return fetch(`${this._url}/users/me/avatar`, {
             method: 'PATCH',
@@ -66,7 +58,6 @@ class Api {
         .then(this._getResponse)
     }
     
-// добавляем новую карточку на сервер
 
     postCard(data){
         console.log(data)
@@ -84,8 +75,6 @@ class Api {
         .then(this._getResponse)
     }
 
-// ставим лайк на карточку
-
     setLike(data){
         return fetch(`${this._url}/cards/likes/${data}`, {
             method: 'PUT',
@@ -96,8 +85,6 @@ class Api {
         })
         .then(this._getResponse)
     }
-
-// удаляем лайк с карточки
 
     deleteLike(data){
         return fetch(`${this._url}/cards/likes/${data}`, {
@@ -110,8 +97,6 @@ class Api {
         .then(this._getResponse)
     }
 
-// удаление карточки
-
     deleteCard(data){
         return fetch(`${this._url}/cards/${data}`, {
             method: 'DELETE',
@@ -123,12 +108,9 @@ class Api {
         .then(this._getResponse)
     }
 
-// данные для отрисовки страницы
-
     getAllInfo(){
         return Promise.all([this.getCards(), this.getUserInfo()])
     }
-// проверяем наличие лайка
 
     changeLikeCardStatus(data, isLiked) {
         console.log(data);
