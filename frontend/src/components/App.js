@@ -32,7 +32,7 @@ function App() {
     loggedIn ? history.push("/") : history.push("/sign-in");
   }, [loggedIn, history]);
 
-  const handleLogin = ({ email, password }) => {
+  const handleLogin = ( email, password ) => {
     auth
       .authorize(email, password)
       .then((res) => {
@@ -45,7 +45,7 @@ function App() {
       .catch((err) => console.log(err));
   };
 
-  const handleRegister = ({ email, password }) => {
+  const handleRegister = ( email, password ) => {
     auth
       .register(email, password)
       .then((res) => {
