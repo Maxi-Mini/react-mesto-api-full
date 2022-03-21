@@ -1,4 +1,4 @@
- export const BASE_URL = "https://maxi.backend.nomoredomains.work";
+export const BASE_URL = "https://maxi.backend.nomoredomains.work";
 // export const BASE_URL = 'http://localhost:3001';
 
 export const response = (res) =>
@@ -22,7 +22,7 @@ export const authorize = (email, password) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify( {email, password} ),
+    body: JSON.stringify({ email, password }),
   }).then(response);
 };
 

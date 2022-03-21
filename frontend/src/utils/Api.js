@@ -1,7 +1,8 @@
-import {baseUrl} from '../utils/constants';
+
+
 class Api {
-    constructor(url){
-        this._url = url;
+    constructor(config){
+        this._url = config.url;
     }
 
     _getResponse(res){
@@ -126,5 +127,5 @@ class Api {
 }
 
 export const api = new Api({
-    url: baseUrl
+    url: 'https://maxi.backend.nomoredomains.work',
   })

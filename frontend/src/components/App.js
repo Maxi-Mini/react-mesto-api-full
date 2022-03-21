@@ -18,27 +18,62 @@ import InfoToolTip from "./InfoTooltip";
 
 function App() {
   const [cards, setCards] = useState([]);
-  const [currentUser, setCurrentUser] = useState({});
+  const [currentUser, setCurrentUser] = useState({
+    name: "",
+    about: "",
+    _id: "",
+  });
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
   const [isDataSet, setIsDataSet] = useState(false);
-  const [token, setToken] = useState("");
 
   const history = useHistory();
 
   useEffect(() => {
-    loggedIn ? history.push("/") : history.push("/sign-in");
-  }, [loggedIn, history]);
+    if (loggedIn) {
+      console.log('logged')
+      api
+        .getAllInfo()
+        .then((res) => {
+          const [usersData, cardsData] = res;
+          setCards(cardsData);
+          setCurrentUser(usersData);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [loggedIn]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log(token)
+      auth
+        .getContent(token)
+        .then((data) => {
+          if (data) {
+            setUserData(data.email);
+            setLoggedIn(true);
+            history.push("/");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [history, loggedIn]);
 
   const handleLogin = (email, password) => {
     auth
       .authorize(email, password)
-      .then((res) => {
-        if (res.token) {
-          localStorage.setItem("token", res.token);
+      .then((data) => {
+        if (data.token) {
+          console.log(data);
+          localStorage.setItem("token", data.token);
           setUserData({ email: email });
           setLoggedIn(true);
-          history.push('/');
+          history.push("/");
         }
       })
       .catch((err) => console.log(err));
@@ -49,7 +84,7 @@ function App() {
       .register(email, password)
       .then(() => {
         setIsDataSet(true);
-        history.push('/sign-in');
+        history.push("/sign-in");
         setTooltipStatus("success");
       })
       .catch((err) => {
@@ -64,53 +99,19 @@ function App() {
       });
   };
 
-  useEffect(() => {
-    tokenCheck();
-  }, []);
-
-  const tokenCheck = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setToken(token);
-      auth
-        .getContent(token)
-        .then((res) => {
-          if (res) {
-            setCurrentUser(res.data);
-            setUserData({ email: res.email });
-            setLoggedIn(true);
-          }
-        })
-        .catch((err) => console.log(err));
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUserData({ email: "" });
     setLoggedIn(false);
-    history.push('/sign-in');
+    history.push("/sign-in");
   };
-
-  useEffect(() => {
-    if (loggedIn) {
-      api
-        .getAllInfo(token)
-        .then((data) => {
-          setCards(data.data.reverse());
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [loggedIn, token]);
 
   const handleCardLike = (card) => {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
     api
       .changeLikeCardStatus(card._id, isLiked)
       .then((res) => {
-        setCards((cards) =>
-          cards.map((c) => (c._id === card._id ? res : c))
-        );
+        setCards((cards) => cards.map((c) => (c._id === card._id ? res : c)));
       })
       .catch((err) => console.log(err));
   };
@@ -154,9 +155,9 @@ function App() {
 
   const handleUpdateUser = (user) => {
     api
-      .setUserInfo(user, token)
-      .then((data) => {
-        setCurrentUser(data.data);
+      .setUserInfo(user)
+      .then((res) => {
+        setCurrentUser(res);
         closeAllPopups();
       })
       .catch((err) => console.log(err));
@@ -164,9 +165,9 @@ function App() {
 
   const handleUpdateAvatar = (avatar) => {
     api
-      .setUserAvatar(avatar, token)
-      .then((data) => {
-        setCurrentUser(data.data);
+      .setUserAvatar(avatar)
+      .then((res) => {
+        setCurrentUser(res.data);
         closeAllPopups();
       })
       .catch((err) => console.log(err));
@@ -174,7 +175,7 @@ function App() {
 
   const handleAddPlaceSubmit = (card) => {
     api
-      .postCard(card, token)
+      .postCard(card)
       .then((res) => {
         setCards([res, ...cards]);
         closeAllPopups();

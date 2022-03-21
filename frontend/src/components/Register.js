@@ -18,7 +18,7 @@ export const Register = ({ handleRegister }) => {
   function handleSubmit(evt) {
     evt.preventDefault();
     const { email, password } = data;
-    handleRegister({email, password});
+    handleRegister(email, password);
   }
 
 

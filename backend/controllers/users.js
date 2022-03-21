@@ -6,11 +6,9 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 
-// const { serverError, badRequest, notFound } = require('../utils/const');
-
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
+    .then((users) => res.send({ users }))
     .catch(next);
 };
 
@@ -20,7 +18,7 @@ const getUserId = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному id не найден');
       }
-      res.send(user);
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
