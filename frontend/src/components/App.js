@@ -18,11 +18,7 @@ import InfoToolTip from "./InfoTooltip";
 
 function App() {
   const [cards, setCards] = useState([]);
-  const [currentUser, setCurrentUser] = useState({
-    name: "",
-    about: "",
-    _id: "",
-  });
+  const [currentUser, setCurrentUser] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
   const [isDataSet, setIsDataSet] = useState(false);
@@ -31,11 +27,10 @@ function App() {
 
   useEffect(() => {
     if (loggedIn) {
-      console.log('logged')
       api
         .getAllInfo()
         .then((res) => {
-          const [usersData, cardsData] = res;
+          const [cardsData, usersData] = res;
           setCards(cardsData);
           setCurrentUser(usersData);
         })
@@ -48,12 +43,11 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      console.log(token)
       auth
         .getContent(token)
         .then((data) => {
           if (data) {
-            setUserData(data.email);
+            setUserData({ email: data.email });
             setLoggedIn(true);
             history.push("/");
           }
@@ -71,7 +65,7 @@ function App() {
         if (data.token) {
           console.log(data);
           localStorage.setItem("token", data.token);
-          setUserData({ email: email });
+          setUserData({ email });
           setLoggedIn(true);
           history.push("/");
         }
@@ -107,9 +101,9 @@ function App() {
   };
 
   const handleCardLike = (card) => {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    const isLiked = card.likes.some((i) => i === currentUser._id);
     api
-      .changeLikeCardStatus(card._id, isLiked)
+      .changeLikeCardStatus(card._id, !isLiked)
       .then((res) => {
         setCards((cards) => cards.map((c) => (c._id === card._id ? res : c)));
       })
@@ -167,20 +161,28 @@ function App() {
     api
       .setUserAvatar(avatar)
       .then((res) => {
-        setCurrentUser(res.data);
+        setCurrentUser(res);
+        setIsDataSet(true);
         closeAllPopups();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setIsDataSet(false);
+      });
   };
 
   const handleAddPlaceSubmit = (card) => {
     api
       .postCard(card)
       .then((res) => {
+        setIsDataSet(true);
         setCards([res, ...cards]);
         closeAllPopups();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setIsDataSet(false);
+      });
   };
 
   return (

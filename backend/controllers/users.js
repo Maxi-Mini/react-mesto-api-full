@@ -59,7 +59,7 @@ const createUser = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { id } = req.user._id;
+  const id = req.user._id;
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     id,
@@ -82,7 +82,8 @@ const updateUser = (req, res, next) => {
 };
 
 const updateAvatar = (req, res, next) => {
-  const { id } = req.user._id;
+  const id = req.user._id;
+  console.log(id);
   const { avatar } = req.body;
   User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
@@ -104,7 +105,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', {
         expiresIn: 604800,
       });
       res

@@ -38,7 +38,7 @@ function EditProfilePopup({isOpen, onClose, onUpdateUser}){
           onSubmit={handleSubmit}
         >
           <input
-          value={name} onChange={handleChangeName}
+          value={`${name}`} onChange={handleChangeName}
             className="popup__input popup__input_type_name"
             type="text"
             minLength="2"
@@ -52,7 +52,7 @@ function EditProfilePopup({isOpen, onClose, onUpdateUser}){
             Ошибка
           </span>
           <input
-          value={description} onChange={handleChangeDescription}
+          value={`${description}`} onChange={handleChangeDescription}
             className="popup__input popup__input_type_job"
             type="text"
             minLength="2"

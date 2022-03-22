@@ -43,6 +43,7 @@ export const Login=({ handleLogin }) =>{
           type="password"
           value={data.password}
           required
+          autoComplete="on"
         />
         <button className="auth__button" type="submit">
           Войти

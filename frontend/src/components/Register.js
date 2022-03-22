@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export const Register = ({ handleRegister }) => {
+export const Register = ({ handleRegister, isDataSet }) => {
+
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -21,7 +22,11 @@ export const Register = ({ handleRegister }) => {
     handleRegister(email, password);
   }
 
-
+  useEffect(() => {
+    if (isDataSet) {
+      setData({ email: "", password: "" });
+    }
+  }, [isDataSet]);
 
   return (
     <div className="auth">
@@ -46,6 +51,7 @@ export const Register = ({ handleRegister }) => {
           type="password"
           value={data.password}
           required
+          autoComplete="on"
         />
         <button className="auth__button" type="submit">
           Зарегистрироваться
