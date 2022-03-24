@@ -70,18 +70,35 @@ const putLike = (req, res, next) => {
     });
 };
 
+// const deleteLike = (req, res, next) => {
+//   Card.findByIdAndUpdate(
+//     req.params.id,
+//     { $pull: { likes: req.user._id } },
+//     { new: true },
+//   )
+//     .then((card) => {
+//       if (!card) {
+//         next(new NotFoundError('Карточка с таким _id не найдена'));
+//       }
+//       return res.send(card);
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         next(new BadRequestError('Переданы некорректные данные'));
+//       } else {
+//         next(err);
+//       }
+//     });
+// };
+
 const deleteLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточка с таким _id не найдена'));
-      }
-      return res.send(card);
-    })
+    .orFail(() => new NotFoundError('Карточка с таким _id не найдена'))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
